@@ -1,3 +1,13 @@
+/*create table todo
+(
+    id          varchar(255) not null,
+    completed   boolean      not null,
+    created     timestamp,
+    description varchar(255) not null,
+    modified    timestamp,
+    primary key (id)
+);
+
 insert into todo (id, description, created, modified, completed)
 values ('8a8080a365481fb00165481fbca90000', 'Read a Book', '2018-08-17
 07:42:44.136', '2018-08-17 07:42:44.137', true);
@@ -8,4 +18,4 @@ values ('ebcf1850563c4de3b56813a52a95e930', 'Buy Movie Tickets', '2018-08-17
 
 insert into todo (id, description, created, modified, completed)
 values ('78269087206d472c894f3075031d8d6b', 'Clean my Room', '2018-08-17
-07:42:44.136', '2018-08-17 07:42:44.137', false);
+07:42:44.136', '2018-08-17 07:42:44.137', false);*/
