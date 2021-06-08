@@ -1,4 +1,5 @@
 package com.apress.todo.config;
+
 import com.apress.todo.directory.Person;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
 import java.net.URI;
 
 @EnableConfigurationProperties(ToDoProperties.class)
@@ -34,21 +36,22 @@ public class ToDoSecurityConfig extends WebSecurityConfigurerAdapter {
     private final RestTemplate restTemplate;
     private final ToDoProperties toDoProperties;
     private UriComponentsBuilder builder;
+
     public ToDoSecurityConfig(RestTemplateBuilder restTemplateBuilder,
-                              ToDoProperties toDoProperties){
+                              ToDoProperties toDoProperties) {
         this.toDoProperties = toDoProperties;
-        this.restTemplate = restTemplateBuilder.basicAuthorization(
-                toDoProperties.getUsername(),toDoProperties.getPassword()).
+        this.restTemplate = restTemplateBuilder.basicAuthentication(
+                toDoProperties.getUsername(), toDoProperties.getPassword()).
                 build();
     }
 
-@Override
+    @Override
     protected void configure(AuthenticationManagerBuilder auth) throws
             Exception {
-        auth.userDetailsService(new UserDetailsService(){
-@Override
-public UserDetails loadUserByUsername(String username) throws
-            UsernameNotFoundException {
+        auth.userDetailsService(new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) throws
+                    UsernameNotFoundException {
                 try {
                     builder = UriComponentsBuilder
                             .fromUriString(toDoProperties.getFindByEmailUri())
@@ -56,7 +59,7 @@ public UserDetails loadUserByUsername(String username) throws
                     log.info("Querying: " + builder.toUriString());
                     ResponseEntity<Resource<Person>> responseEntity =
                             restTemplate.exchange(
-                                    RequestEntity .get(URI. create(builder.toUriString()))
+                                    RequestEntity.get(URI.create(builder.toUriString()))
                                             .accept(MediaTypes.HAL_JSON)
                                             .build()
                                     , new ParameterizedTypeReference<Resource
@@ -74,26 +77,27 @@ public UserDetails loadUserByUsername(String username) throws
                                 .accountLocked(!person.isEnabled())
                                 .roles(person.getRole()).build();
                     }
-                }catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 throw new UsernameNotFoundException(username);
             }
         });
     }
-@Override
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .requestMatchers(PathRequest.toStaticResources().
                         atCommonLocations()).permitAll()
-                .antMatchers("/","/api/**").hasRole("USER")
-                 .and()
-                 .formLogin().loginPage("/login").permitAll()
-                 .and()
-                 .logout()
-                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                 .logoutSuccessUrl("/login")
-                 .and()
-                 .httpBasic();
-                 }
-                 }
+                .antMatchers("/", "/api/**").hasRole("USER")
+                .and()
+                .formLogin().loginPage("/login").permitAll()
+                .and()
+                .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/login")
+                .and()
+                .httpBasic();
+    }
+}
